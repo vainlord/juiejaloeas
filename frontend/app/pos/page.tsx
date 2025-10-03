@@ -101,7 +101,8 @@ export default function POSPage() {
                 <p className="text-sm text-gray-500">Wed, 29 May 2024 • 07:59 AM</p>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-green-600 font-medium">● Open Order</span>
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#1C8370' }}></div>
+                <span className="font-medium" style={{ color: '#1C8370' }}>Open Order</span>
               </div>
             </div>
 
@@ -258,13 +259,19 @@ export default function POSPage() {
             </div>
 
             <div className="flex gap-2">
-              <button className="flex-1 px-4 py-3 border border-blue-500 text-blue-500 rounded-lg hover:bg-blue-50 transition-colors">
+              <button 
+                className="flex-1 px-4 py-3 border rounded-lg hover:bg-blue-50 transition-colors"
+                style={{ borderColor: '#2D7IF8', color: '#2D7IF8' }}
+              >
                 QRIS
               </button>
               <button 
                 onClick={handlePlaceOrder}
                 disabled={items.length === 0 || submitting}
-                className="flex-1 px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-3 text-white rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ backgroundColor: items.length === 0 || submitting ? '#94a3b8' : '#2D7IF8' }}
+                onMouseEnter={(e) => !submitting && items.length > 0 && (e.currentTarget.style.backgroundColor = '#1e5fd9')}
+                onMouseLeave={(e) => !submitting && items.length > 0 && (e.currentTarget.style.backgroundColor = '#2D7IF8')}
               >
                 <Check className="w-5 h-5" />
                 {submitting ? 'Placing...' : 'Place Order'}
