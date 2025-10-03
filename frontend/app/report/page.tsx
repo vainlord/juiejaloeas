@@ -72,7 +72,10 @@ export default function ReportPage() {
               <button className="p-2 bg-white border border-gray-200 rounded-lg">
                 <Calendar className="w-5 h-5 text-gray-600" />
               </button>
-              <span className="text-green-600 font-medium">● Open Order</span>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#1C8370' }}></div>
+                <span className="font-medium" style={{ color: '#1C8370' }}>Open Order</span>
+              </div>
               <label className="flex items-center gap-2">
                 <span className="text-sm text-gray-600">Show Graph</span>
                 <input 
@@ -153,9 +156,9 @@ export default function ReportPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
             {/* Graph Section */}
-            <div className="col-span-2 space-y-6">
+            <div className="lg:col-span-2">
               {/* Sales Chart */}
               {showGraph && (
                 <div className="bg-white p-6 rounded-lg border border-gray-200">
@@ -205,8 +208,36 @@ export default function ReportPage() {
                   </div>
                 </div>
               )}
+            </div>
 
-              {/* All Orders */}
+            {/* Favorite Products */}
+            <div className="bg-white p-6 rounded-lg border border-gray-200 h-fit">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">● Favorite Product</h2>
+                <button className="p-1 hover:bg-gray-100 rounded">
+                  <Search className="w-5 h-5 text-gray-400" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {favoriteProducts.map((product) => (
+                  <div key={product.id} className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors">
+                    <div className="text-3xl">{product.image}</div>
+                    <div className="flex-1">
+                      <h3 className="font-medium text-gray-900">{product.name}</h3>
+                      <p className="text-sm text-gray-500">{product.category}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold text-gray-900">{product.orders}</p>
+                      <p className="text-xs text-gray-500">Times</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* All Orders - FULL WIDTH */}
               <div className="bg-white p-6 rounded-lg border border-gray-200">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg font-semibold text-gray-900">● All Orders</h2>
@@ -269,34 +300,6 @@ export default function ReportPage() {
                   </table>
                 </div>
               </div>
-            </div>
-
-            {/* Favorite Products */}
-            <div className="bg-white p-6 rounded-lg border border-gray-200 h-fit">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">● Favorite Product</h2>
-                <button className="p-1 hover:bg-gray-100 rounded">
-                  <Search className="w-5 h-5 text-gray-400" />
-                </button>
-              </div>
-
-              <div className="space-y-3">
-                {favoriteProducts.map((product) => (
-                  <div key={product.id} className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg">
-                    <div className="text-4xl">{product.image}</div>
-                    <div className="flex-1">
-                      <h3 className="font-medium text-gray-900">{product.name}</h3>
-                      <p className="text-sm text-gray-500">{product.category}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-lg font-bold text-gray-900">{product.orders}</p>
-                      <p className="text-xs text-gray-500">Times</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
