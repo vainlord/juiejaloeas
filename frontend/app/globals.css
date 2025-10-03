@@ -3,13 +3,15 @@
 :root {
   --background: #ffffff;
   --foreground: #0a0a0a;
-  --primary: #3b82f6;
+  --primary: #2D7IF8;
   --primary-foreground: #ffffff;
+  --success: #1C8370;
+  --danger: #FC4A4A;
   --border: #e5e7eb;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-urbanist), 'Urbanist', system-ui, -apple-system, sans-serif;
 }

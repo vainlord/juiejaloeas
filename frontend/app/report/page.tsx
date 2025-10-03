@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react'
-import { TrendingUp, Users, DollarSign, Package, Download, Calendar } from 'lucide-react'
+import { TrendingUp, Users, DollarSign, Package, Download, Calendar, Search } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import Sidebar from '@/components/sidebar'
 
@@ -216,10 +216,10 @@ export default function ReportPage() {
                     <span className="text-gray-400">—</span>
                     <input type="date" className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm" defaultValue="2024-05-29" />
                     <button className="p-2 hover:bg-gray-100 rounded-lg">
-                      <span className="text-gray-400">🔍</span>
+                      <Search className="w-5 h-5 text-gray-400" />
                     </button>
                     <button className="p-2 hover:bg-gray-100 rounded-lg">
-                      <span className="text-gray-400">⚙️</span>
+                      <Download className="w-5 h-5 text-gray-400" />
                     </button>
                   </div>
                 </div>
@@ -276,7 +276,7 @@ export default function ReportPage() {
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-gray-900">● Favorite Product</h2>
                 <button className="p-1 hover:bg-gray-100 rounded">
-                  <span className="text-gray-400">🔍</span>
+                  <Search className="w-5 h-5 text-gray-400" />
                 </button>
               </div>
 

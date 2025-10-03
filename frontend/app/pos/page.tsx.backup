@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Search, Plus, Minus, Trash2, Check } from 'lucide-react'
 import { useCartStore } from '@/store/cart'
+import { formatCurrency } from '@/lib/utils'
 import Sidebar from '@/components/sidebar'
 import { productsApi } from '@/lib/api/products'
 import { categoriesApi } from '@/lib/api/products'
