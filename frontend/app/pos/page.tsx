@@ -1,47 +1,85 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Search, Plus, Minus, Trash2, Check } from 'lucide-react'
 import { useCartStore } from '@/store/cart'
 import { formatCurrency } from '@/lib/utils'
 import Sidebar from '@/components/sidebar'
-
-// Mock product data
-const categories = ['All Menu', 'Breads', 'Cakes', 'Donuts', 'Pastries', 'Sandwich']
-
-const mockProducts = [
-  { id: 1, name: 'Beef Crowbch', category: 'Sandwich', price: 5.50, image: '🥪' },
-  { id: 2, name: 'Buttermeli Croissant', category: 'Pastry', price: 4.00, image: '🥐' },
-  { id: 3, name: 'Cereal Cream Donut', category: 'Donut', price: 2.45, image: '🍩' },
-  { id: 4, name: 'Cheesy Cheesecake', category: 'Cake', price: 3.75, image: '🍰' },
-  { id: 5, name: 'Cheesy Sourdough', category: 'Bread', price: 4.50, image: '🍞' },
-  { id: 6, name: 'Egg Tart', category: 'Tart', price: 3.25, image: '🥧' },
-  { id: 7, name: 'Grains Pan Bread', category: 'Bread', price: 3.25, image: '🍞' },
-  { id: 8, name: 'Spinchoco Roll', category: 'Pastry', price: 4.00, image: '🥖' },
-  { id: 9, name: 'Sliced Black Forest', category: 'Cake', price: 5.00, image: '🍰' },
-  { id: 10, name: 'Solo Floss Bread', category: 'Bread', price: 4.50, image: '🥖' },
-  { id: 11, name: 'Zoguma Pan Bread', category: 'Bread', price: 4.50, image: '🍞' },
-]
+import { productsApi } from '@/lib/api/products'
+import { categoriesApi } from '@/lib/api/products'
+import { ordersApi } from '@/lib/api/orders'
+import type { Product, Category } from '@/lib/api/types'
 
 export default function POSPage() {
-  const [selectedCategory, setSelectedCategory] = useState('All Menu')
+  const [categories, setCategories] = useState<Category[]>([])
+  const [products, setProducts] = useState<Product[]>([])
+  const [selectedCategory, setSelectedCategory] = useState<number | 'all'>('all')
   const [searchQuery, setSearchQuery] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
   
-  const { items, addItem, updateQuantity, removeItem, getSubtotal, getTotal, discount, tax } = useCartStore()
+  const { items, addItem, updateQuantity, removeItem, getSubtotal, getTotal, clearCart, discount, tax, tableId, orderType } = useCartStore()
 
-  const filteredProducts = mockProducts.filter(product => {
-    const matchesCategory = selectedCategory === 'All Menu' || product.category === selectedCategory
+  useEffect(() => {
+    loadData()
+  }, [])
+
+  const loadData = async () => {
+    try {
+      setLoading(true)
+      const [categoriesData, productsData] = await Promise.all([
+        categoriesApi.getAll(),
+        productsApi.getAll()
+      ])
+      setCategories(categoriesData)
+      setProducts(productsData)
+    } catch (error) {
+      console.error('Failed to load data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const filteredProducts = products.filter(product => {
+    const matchesCategory = selectedCategory === 'all' || product.category_id === selectedCategory
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase())
     return matchesCategory && matchesSearch
   })
 
-  const handleAddToCart = (product: typeof mockProducts[0]) => {
+  const handleAddToCart = (product: Product) => {
     addItem({
       productId: product.id,
       name: product.name,
       price: product.price,
-      image: product.image,
+      image: product.category?.icon || '🍰',
     })
+  }
+
+  const handlePlaceOrder = async () => {
+    if (items.length === 0) return
+    
+    try {
+      setSubmitting(true)
+      await ordersApi.create({
+        table_id: tableId,
+        type: orderType === 'dine_in' ? 'dine-in' : 'takeaway',
+        items: items.map(item => ({
+          product_id: item.productId,
+          quantity: item.quantity,
+          notes: item.notes
+        })),
+        payment_method: 'cash',
+        discount: discount
+      })
+      
+      clearCart()
+      alert('Order placed successfully!')
+    } catch (error) {
+      console.error('Failed to place order:', error)
+      alert('Failed to place order. Please try again.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   const subtotal = getSubtotal()
@@ -98,20 +136,29 @@ export default function POSPage() {
           </div>
 
           {/* Product Grid */}
-          <div className="grid grid-cols-4 gap-4 overflow-auto">
-            {filteredProducts.map(product => (
-              <button
-                key={product.id}
-                onClick={() => handleAddToCart(product)}
-                className="bg-white p-4 rounded-lg border border-gray-200 hover:border-blue-500 transition-all hover:shadow-md"
-              >
-                <div className="text-5xl mb-3">{product.image}</div>
-                <h3 className="font-semibold text-gray-900 mb-1">{product.name}</h3>
-                <p className="text-sm text-gray-500 mb-2">{product.category}</p>
-                <p className="text-lg font-bold text-gray-900">{formatCurrency(product.price)}</p>
-              </button>
-            ))}
-          </div>
+          {loading ? (
+            <div className="flex items-center justify-center h-64">
+              <p className="text-gray-400">Loading products...</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-4 gap-4 overflow-auto">
+              {filteredProducts.map(product => (
+                <button
+                  key={product.id}
+                  onClick={() => handleAddToCart(product)}
+                  className="bg-white p-4 rounded-lg border border-gray-200 hover:border-blue-500 transition-all hover:shadow-md text-left"
+                >
+                  <div className="text-5xl mb-3">{product.category?.icon || '🍰'}</div>
+                  <h3 className="font-semibold text-gray-900 mb-1">{product.name}</h3>
+                  <p className="text-sm text-gray-500 mb-2">{product.category?.name}</p>
+                  <p className="text-lg font-bold text-gray-900">Rp {product.price.toLocaleString()}</p>
+                  {product.stock <= (product.min_stock || 0) && (
+                    <p className="text-xs text-red-500 mt-1">Low stock: {product.stock}</p>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Cart Sidebar */}
@@ -214,9 +261,13 @@ export default function POSPage() {
               <button className="flex-1 px-4 py-3 border border-blue-500 text-blue-500 rounded-lg hover:bg-blue-50 transition-colors">
                 QRIS
               </button>
-              <button className="flex-1 px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2">
+              <button 
+                onClick={handlePlaceOrder}
+                disabled={items.length === 0 || submitting}
+                className="flex-1 px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 <Check className="w-5 h-5" />
-                Place Order
+                {submitting ? 'Placing...' : 'Place Order'}
               </button>
             </div>
           </div>
